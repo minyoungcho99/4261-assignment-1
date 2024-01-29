@@ -11,6 +11,62 @@ import {
   ScrollView
 } from 'react-native';
 
+function App(): React.JSX.Element {
+  return (
+    <SafeAreaView style={styles.container}>
+      <View>
+        <LogoComponent></LogoComponent>
+        <TextInputComponent></TextInputComponent>
+        <ContentScrollViewComponent></ContentScrollViewComponent>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+// Logo
+const LogoComponent = () => {
+  return (
+    <View style={styles.header}>
+      <Text style={styles.appName}>RateMyCourse at </Text>
+      <Image
+        source={require('./src/GeorgiaTech_RGB.png')}
+        style={styles.logo}
+      />
+    </View>
+  )
+};
+//
+
+// Text Input
+const TextInputComponent = () => {
+  // State to store the user's input
+  const [userInput, setUserInput] = useState('');
+
+  // Function to handle the submission
+  const handleSubmit = () => {
+    // Show an alert with the user's input
+    Alert.alert('Submitted', `Your input: ${userInput}`);
+  };
+
+  return (
+    <View>
+      <Text style={styles.label}>Enter your comment on:</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setUserInput}
+        value={userInput}
+        placeholder="Type here"
+      />
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>
+    </View>
+  )
+};
+//
+
+
+// scroll view
 type ContentBoxProps = {
   course: string;
   body: string;
@@ -18,14 +74,14 @@ type ContentBoxProps = {
 
 const ContentBox = (props: ContentBoxProps) => {
   return (
-    <View style={styles.contentBox}>
-      <Text style={styles.course}>Course: {props.course}</Text>
-      <Text style={styles.body}>{props.body}</Text>
+    <View style={styles_scrollview.contentBox}>
+      <Text style={styles_scrollview.course}>Course: {props.course}</Text>
+      <Text style={styles_scrollview.body}>{props.body}</Text>
     </View>
   )
 };
 
-const ContentScrollView = () => {
+const ContentScrollViewComponent = () => {
   const contentData = [
     { course: "CS1000", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
     { course: "CS1200", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
@@ -41,52 +97,16 @@ const ContentScrollView = () => {
   ]
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={styles_scrollview.scrollView}>
       {contentData.map((data, index) => (
         <ContentBox key={index} course={data.course} body={data.body}></ContentBox>
       ))}
     </ScrollView>
   );
 };
+//
 
 
-function App(): React.JSX.Element {
-  // State to store the user's input
-  const [userInput, setUserInput] = useState('');
-
-  // Function to handle the submission
-  const handleSubmit = () => {
-    // Show an alert with the user's input
-    Alert.alert('Submitted', `Your input: ${userInput}`);
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.appName}>RateMyCourse at </Text>
-        <Image
-          source={require('./src/GeorgiaTech_RGB.png')}
-          style={styles.logo}
-        />
-      </View>
-      <View>
-        <Text style={styles.label}>Enter your comment on:</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setUserInput}
-          value={userInput}
-          placeholder="Type here"
-        />
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Submit</Text>
-        </TouchableOpacity>
-      </View>
-      <View>
-        <ContentScrollView></ContentScrollView>
-      </View>
-    </SafeAreaView>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -128,6 +148,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: "#FFFFFF"
   },
+});
+
+const styles_scrollview = StyleSheet.create({
   scrollView: {
     paddingHorizontal: 16,
     paddingVertical: 8,
