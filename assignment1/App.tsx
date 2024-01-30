@@ -132,7 +132,6 @@ const TextInputComponent: FC<TextInputComponentProps> = ({ userInput, setUserInp
 };
 //
 
-
 // scroll view
 type ContentType = {
   comment: string;
@@ -209,7 +208,6 @@ const ContentScrollViewComponent = () => {
   );
 };
 //
-
 
 const styles = StyleSheet.create({
   container: {
@@ -294,4 +292,3 @@ const styles_scrollview = StyleSheet.create({
 });
 
 export default App;
-
