@@ -136,8 +136,8 @@ const TextInputComponent: FC<TextInputComponentProps> = ({ userInput, setUserInp
 // scroll view
 type ContentType = {
   comment: string;
-  courseNum: string;
-  rating: string;
+  course: string;
+  // rating: string;
   timestamp: {
     nanoseconds: number;
     seconds: number;
@@ -148,8 +148,8 @@ type ContentType = {
 const ContentBox = (props: ContentType) => {
   return (
     <View style={styles_scrollview.contentBox}>
-      <Text style={styles_scrollview.course}>Course: {props.courseNum}</Text>
-      <Text style={styles_scrollview.rating}>rating: {props.rating}</Text>
+      <Text style={styles_scrollview.course}>Course: {props.course}</Text>
+      {/* <Text style={styles_scrollview.rating}>rating: {props.rating}</Text> */}
       <Text style={styles_scrollview.body}>{props.comment}</Text>
       <Text style={styles_scrollview.timestamp}>{props.timestamp.toDate().toString()}</Text>
     </View>
@@ -201,8 +201,8 @@ const ContentScrollViewComponent = () => {
 
       {contentData.map((data, index) => (
         <ContentBox
-          key={index} courseNum={data.courseNum} comment={data.comment}
-          rating={data.rating} timestamp={data.timestamp}></ContentBox>
+          key={index} course={data.course} comment={data.comment}
+          timestamp={data.timestamp}></ContentBox>
       ))}
 
     </ScrollView>
