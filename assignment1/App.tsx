@@ -3,7 +3,6 @@ import {
   Alert,
   Image,
   View,
-  ScrollView,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -12,10 +11,6 @@ import {
   ScrollView,
   RefreshControl,
 } from 'react-native';
-
-import firestore from '@react-native-firebase/firestore';
-
-import firestore from '@react-native-firebase/firestore';
 
 import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
