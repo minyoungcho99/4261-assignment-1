@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, FC } from 'react';
 import {
   Alert,
   Image,
@@ -12,15 +12,60 @@ import {
 } from 'react-native';
 
 import { Picker } from '@react-native-picker/picker';
+import firestore from '@react-native-firebase/firestore';
 
-function App(): React.JSX.Element {
+interface PickerComponentProps {
+  selectedCourse: string;
+  setSelectedCourse: (course: string) => void;
+}
+
+interface TextInputComponentProps {
+  userInput: string;
+  setUserInput: (input: string) => void;
+}
+
+function App() {
+  // State for the selected course and user input
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [userInput, setUserInput] = useState('');
+
+  // Function to handle the submission
+  const handleSubmit = async () => {
+    // Validate input
+    if (!selectedCourse || !userInput) {
+      Alert.alert('Error', 'Please select a course and enter your rating.')
+      return;
+    }
+
+    // Add data to Firestore
+    try {
+      await firestore()
+        .collection('ratings')
+        .add({
+          course: selectedCourse,
+          comment: userInput,
+          timestamp: firestore.FieldValue.serverTimestamp(),
+        });
+      Alert.alert('Success', 'Your rating has been submitted.');
+      // Reset the state
+      setSelectedCourse('');
+      setUserInput('');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'There was a problem submitting your rating.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
-        <LogoComponent></LogoComponent>
-        <PickerComponent></PickerComponent>
-        <TextInputComponent></TextInputComponent>
-        <ContentScrollViewComponent></ContentScrollViewComponent>
+        <LogoComponent />
+        <PickerComponent selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} />
+        <TextInputComponent userInput={userInput} setUserInput={setUserInput} />
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Submit</Text>
+        </TouchableOpacity>
+        <ContentScrollViewComponent />
       </View>
     </SafeAreaView>
   );
@@ -30,7 +75,7 @@ function App(): React.JSX.Element {
 const LogoComponent = () => {
   return (
     <View style={styles.header}>
-      <Text style={styles.appName}>RateMyCourse at </Text>
+      <Text style={styles.appName}>    RateMyCourse at </Text>
       <Image
         source={require('./src/GeorgiaTech_RGB.png')}
         style={styles.logo}
@@ -41,14 +86,11 @@ const LogoComponent = () => {
 //
 
 // Picker
-const PickerComponent = () => {
-  // Use useState hook for state management in functional component
-  const [selectedCourse, setSelectedCourse] = useState('');
-
+const PickerComponent: FC<PickerComponentProps> = ({selectedCourse, setSelectedCourse}) => {
   return (
-    <View>
+    <View style={styles.pickerComp}>
       <Text>Select course to rate:</Text>
-      <View style={styles.pickerComp}>
+      <View>
         <Picker
           style={styles.picker}
           selectedValue={selectedCourse}
@@ -74,29 +116,16 @@ const PickerComponent = () => {
 }; 
 
 // Text Input
-const TextInputComponent = () => {
-  // State to store the user's input
-  const [userInput, setUserInput] = useState('');
-
-  // Function to handle the submission
-  const handleSubmit = () => {
-    // Show an alert with the user's input
-    Alert.alert('Submitted', `Your input: ${userInput}`);
-  };
-
+const TextInputComponent: FC<TextInputComponentProps> = ({ userInput, setUserInput }) => {
   return (
     <View>
-      <Text style={styles.label}>Enter your comment on:
-    </Text>
+      <Text style={styles.label}>Enter your comment on:</Text>
       <TextInput
         style={styles.input}
         onChangeText={setUserInput}
         value={userInput}
         placeholder="Type here"
       />
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
     </View>
   )
 };
@@ -185,7 +214,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF"
   },
   pickerComp: {
-    marginTop: 10,
+    marginTop: 40,
   },
   picker: {
     width: '53%',
@@ -196,6 +225,7 @@ const styles_scrollview = StyleSheet.create({
   scrollView: {
     paddingHorizontal: 16,
     paddingVertical: 8,
+    marginTop: 20
   },
   contentBox: {
     backgroundColor: '#ffffff',
