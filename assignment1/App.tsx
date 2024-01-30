@@ -1,4 +1,4 @@
-import React, { useState, FC } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 import {
   Alert,
   Image,
@@ -9,7 +9,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ScrollView,
+  RefreshControl,
 } from 'react-native';
+
+import firestore from '@react-native-firebase/firestore';
+
+import firestore from '@react-native-firebase/firestore';
 
 import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
@@ -86,7 +92,7 @@ const LogoComponent = () => {
 //
 
 // Picker
-const PickerComponent: FC<PickerComponentProps> = ({selectedCourse, setSelectedCourse}) => {
+const PickerComponent: FC<PickerComponentProps> = ({ selectedCourse, setSelectedCourse }) => {
   return (
     <View style={styles.pickerComp}>
       <Text>Select course to rate:</Text>
@@ -96,24 +102,24 @@ const PickerComponent: FC<PickerComponentProps> = ({selectedCourse, setSelectedC
           selectedValue={selectedCourse}
           onValueChange={(value, index) => setSelectedCourse(value)}
         >
-          <Picker.Item label='Course Number' value=""/>
-          <Picker.Item label='CS 1000' value="cs1000"/>
-          <Picker.Item label='CS 1100' value="cs1100"/>
-          <Picker.Item label='CS 1200' value="cs1200"/>
-          <Picker.Item label='CS 1300' value="cs1300"/>
-          <Picker.Item label='CS 1400' value="cs1400"/>
-          <Picker.Item label='CS 1500' value="cs1500"/>
-          <Picker.Item label='CS 1600' value="cs1600"/>
-          <Picker.Item label='CS 1700' value="cs1700"/>
-          <Picker.Item label='CS 1800' value="cs1800"/>
-          <Picker.Item label='CS 1900' value="cs1900"/>
-          <Picker.Item label='CS 2000' value="cs2000"/>
-          <Picker.Item label='CS 2100' value="cs2100"/>
+          <Picker.Item label='Course Number' value="" />
+          <Picker.Item label='CS 1000' value="cs1000" />
+          <Picker.Item label='CS 1100' value="cs1100" />
+          <Picker.Item label='CS 1200' value="cs1200" />
+          <Picker.Item label='CS 1300' value="cs1300" />
+          <Picker.Item label='CS 1400' value="cs1400" />
+          <Picker.Item label='CS 1500' value="cs1500" />
+          <Picker.Item label='CS 1600' value="cs1600" />
+          <Picker.Item label='CS 1700' value="cs1700" />
+          <Picker.Item label='CS 1800' value="cs1800" />
+          <Picker.Item label='CS 1900' value="cs1900" />
+          <Picker.Item label='CS 2000' value="cs2000" />
+          <Picker.Item label='CS 2100' value="cs2100" />
         </Picker>
       </View>
     </View>
   );
-}; 
+};
 
 // Text Input
 const TextInputComponent: FC<TextInputComponentProps> = ({ userInput, setUserInput }) => {
@@ -133,40 +139,77 @@ const TextInputComponent: FC<TextInputComponentProps> = ({ userInput, setUserInp
 
 
 // scroll view
-type ContentBoxProps = {
-  course: string;
-  body: string;
-};
+type ContentType = {
+  comment: string;
+  courseNum: string;
+  rating: string;
+  timestamp: {
+    nanoseconds: number;
+    seconds: number;
+    toDate(): Date;
+  };
+}
 
-const ContentBox = (props: ContentBoxProps) => {
+const ContentBox = (props: ContentType) => {
   return (
     <View style={styles_scrollview.contentBox}>
-      <Text style={styles_scrollview.course}>Course: {props.course}</Text>
-      <Text style={styles_scrollview.body}>{props.body}</Text>
+      <Text style={styles_scrollview.course}>Course: {props.courseNum}</Text>
+      <Text style={styles_scrollview.rating}>rating: {props.rating}</Text>
+      <Text style={styles_scrollview.body}>{props.comment}</Text>
+      <Text style={styles_scrollview.timestamp}>{props.timestamp.toDate().toString()}</Text>
     </View>
   )
 };
 
 const ContentScrollViewComponent = () => {
-  const contentData = [
-    { course: "CS 1000", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 1200", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 1300", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 1400", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 1500", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 1600", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 1700", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 1800", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 1900", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 2000", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS 2100", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-  ]
+  const [contentData, setContentData] = useState<Array<ContentType>>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const snapshot = await firestore().collection('ratings').get();
+      const data = snapshot.docs.map(doc => doc.data() as ContentType)
+      setContentData(data);
+      console.log('Data from Firestore:', data);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  };
+
+  // fetch data when the component mounts
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // if scroll down, fetch data
+  const onScroll = async (event: any) => {
+    if (event.nativeEvent.contentOffset.y <= 0) {
+      setRefreshing(true);
+      try {
+        await fetchData();
+      } catch (error) {
+        console.error('Error refreshing data: ', error);
+      } finally {
+        setRefreshing(false);
+      }
+    }
+  };
 
   return (
-    <ScrollView style={styles_scrollview.scrollView}>
+    <ScrollView
+      style={styles_scrollview.scrollView}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+      }
+      onScroll={onScroll}
+      scrollEventThrottle={400}>
+
       {contentData.map((data, index) => (
-        <ContentBox key={index} course={data.course} body={data.body}></ContentBox>
+        <ContentBox
+          key={index} courseNum={data.courseNum} comment={data.comment}
+          rating={data.rating} timestamp={data.timestamp}></ContentBox>
       ))}
+
     </ScrollView>
   );
 };
@@ -239,9 +282,16 @@ const styles_scrollview = StyleSheet.create({
     elevation: 2,
   },
   course: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  rating: {
+    textAlign: 'right',
+  },
+  timestamp: {
+    textAlign: 'left',
+    fontSize: 10,
   },
   body: {
     fontSize: 16,
