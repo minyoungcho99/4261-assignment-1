@@ -50,7 +50,8 @@ const TextInputComponent = () => {
 
   return (
     <View>
-      <Text style={styles.label}>Enter your comment on:</Text>
+      <Text style={styles.label}>Enter your comment on:
+    </Text>
       <TextInput
         style={styles.input}
         onChangeText={setUserInput}
@@ -105,7 +106,6 @@ const ContentScrollViewComponent = () => {
   );
 };
 //
-
 
 
 const styles = StyleSheet.create({
