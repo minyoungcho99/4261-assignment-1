@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,8 +8,11 @@ import {
   TextInput,
   Alert,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
+  RefreshControl,
 } from 'react-native';
+
+import firestore from '@react-native-firebase/firestore';
 
 function App(): React.JSX.Element {
   return (
@@ -51,7 +54,7 @@ const TextInputComponent = () => {
   return (
     <View>
       <Text style={styles.label}>Enter your comment on:
-    </Text>
+      </Text>
       <TextInput
         style={styles.input}
         onChangeText={setUserInput}
@@ -68,40 +71,77 @@ const TextInputComponent = () => {
 
 
 // scroll view
-type ContentBoxProps = {
-  course: string;
-  body: string;
-};
+type ContentType = {
+  comment: string;
+  courseNum: string;
+  rating: string;
+  timestamp: {
+    nanoseconds: number;
+    seconds: number;
+    toDate(): Date;
+  };
+}
 
-const ContentBox = (props: ContentBoxProps) => {
+const ContentBox = (props: ContentType) => {
   return (
     <View style={styles_scrollview.contentBox}>
-      <Text style={styles_scrollview.course}>Course: {props.course}</Text>
-      <Text style={styles_scrollview.body}>{props.body}</Text>
+      <Text style={styles_scrollview.course}>Course: {props.courseNum}</Text>
+      <Text style={styles_scrollview.rating}>rating: {props.rating}</Text>
+      <Text style={styles_scrollview.body}>{props.comment}</Text>
+      <Text style={styles_scrollview.timestamp}>{props.timestamp.toDate().toString()}</Text>
     </View>
   )
 };
 
 const ContentScrollViewComponent = () => {
-  const contentData = [
-    { course: "CS1000", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS1200", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS1300", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS1400", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS1500", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS1600", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS1700", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS1800", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS1900", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS2000", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-    { course: "CS2100", body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." },
-  ]
+  const [contentData, setContentData] = useState<Array<ContentType>>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const snapshot = await firestore().collection('ratings').get();
+      const data = snapshot.docs.map(doc => doc.data() as ContentType)
+      setContentData(data);
+      console.log('Data from Firestore:', data);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  };
+
+  // fetch data when the component mounts
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // if scroll down, fetch data
+  const onScroll = async (event: any) => {
+    if (event.nativeEvent.contentOffset.y <= 0) {
+      setRefreshing(true);
+      try {
+        await fetchData();
+      } catch (error) {
+        console.error('Error refreshing data: ', error);
+      } finally {
+        setRefreshing(false);
+      }
+    }
+  };
 
   return (
-    <ScrollView style={styles_scrollview.scrollView}>
+    <ScrollView
+      style={styles_scrollview.scrollView}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+      }
+      onScroll={onScroll}
+      scrollEventThrottle={400}>
+
       {contentData.map((data, index) => (
-        <ContentBox key={index} course={data.course} body={data.body}></ContentBox>
+        <ContentBox
+          key={index} courseNum={data.courseNum} comment={data.comment}
+          rating={data.rating} timestamp={data.timestamp}></ContentBox>
       ))}
+
     </ScrollView>
   );
 };
@@ -167,9 +207,16 @@ const styles_scrollview = StyleSheet.create({
     elevation: 2,
   },
   course: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  rating: {
+    textAlign: 'right',
+  },
+  timestamp: {
+    textAlign: 'left',
+    fontSize: 10,
   },
   body: {
     fontSize: 16,
