@@ -15,9 +15,14 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
 
-interface PickerComponentProps {
+interface PickerComponent1Props {
   selectedCourse: string;
   setSelectedCourse: (course: string) => void;
+}
+
+interface PickerComponent2Props {
+  rating: string;
+  setRating: (rating: string) => void;
 }
 
 interface TextInputComponentProps {
@@ -29,12 +34,13 @@ function App() {
   // State for the selected course and user input
   const [selectedCourse, setSelectedCourse] = useState('');
   const [userInput, setUserInput] = useState('');
+  const [rating, setRating] = useState('');
 
   // Function to handle the submission
   const handleSubmit = async () => {
     // Validate input
-    if (!selectedCourse || !userInput) {
-      Alert.alert('Error', 'Please select a course and enter your rating.')
+    if (!selectedCourse || !userInput || !rating) {
+      Alert.alert('Error', 'Please select a course and enter your rating and comment.')
       return;
     }
 
@@ -45,12 +51,16 @@ function App() {
         .add({
           course: selectedCourse,
           comment: userInput,
+          rating: rating,
           timestamp: firestore.FieldValue.serverTimestamp(),
         });
       Alert.alert('Success', 'Your rating has been submitted.');
+
       // Reset the state
       setSelectedCourse('');
       setUserInput('');
+      setRating('');
+       
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'There was a problem submitting your rating.');
@@ -61,7 +71,8 @@ function App() {
     <SafeAreaView style={styles.container}>
       <View>
         <LogoComponent />
-        <PickerComponent selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} />
+        <PickerComponent1 selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} />
+        <PickerComponent2 rating={rating} setRating={setRating} />
         <TextInputComponent userInput={userInput} setUserInput={setUserInput} />
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Submit</Text>
@@ -76,7 +87,7 @@ function App() {
 const LogoComponent = () => {
   return (
     <View style={styles.header}>
-      <Text style={styles.appName}>    RateMyCourse at </Text>
+      <Text style={styles.appName}>  RateMyCourse at </Text>
       <Image
         source={require('./src/GeorgiaTech_RGB.png')}
         style={styles.logo}
@@ -87,7 +98,7 @@ const LogoComponent = () => {
 //
 
 // Picker
-const PickerComponent: FC<PickerComponentProps> = ({ selectedCourse, setSelectedCourse }) => {
+const PickerComponent1: FC<PickerComponent1Props> = ({ selectedCourse, setSelectedCourse }) => {
   return (
     <View style={styles.pickerComp}>
       <Text>Select course to rate:</Text>
@@ -110,6 +121,29 @@ const PickerComponent: FC<PickerComponentProps> = ({ selectedCourse, setSelected
           <Picker.Item label='CS 1900' value="cs1900" />
           <Picker.Item label='CS 2000' value="cs2000" />
           <Picker.Item label='CS 2100' value="cs2100" />
+        </Picker>
+      </View>
+    </View>
+  );
+};
+
+// Picker
+const PickerComponent2: FC<PickerComponent2Props> = ({ rating, setRating }) => {
+  return (
+    <View>
+      <Text>Rate your course:</Text>
+      <View>
+        <Picker
+          style={styles.picker}
+          selectedValue={rating}
+          onValueChange={(value, index) => setRating(value)}
+        >
+          <Picker.Item label='Rating' value="" />
+          <Picker.Item label='1' value="1" />
+          <Picker.Item label='2' value="2" />
+          <Picker.Item label='3' value="3" />
+          <Picker.Item label='4' value="4" />
+          <Picker.Item label='5' value="5" />
         </Picker>
       </View>
     </View>
@@ -261,7 +295,7 @@ const styles_scrollview = StyleSheet.create({
   scrollView: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    marginTop: 20
+    marginTop: 25
   },
   contentBox: {
     backgroundColor: '#ffffff',
