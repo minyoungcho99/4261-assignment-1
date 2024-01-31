@@ -60,7 +60,7 @@ function App() {
       setSelectedCourse('');
       setUserInput('');
       setRating('');
-       
+
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'There was a problem submitting your rating.');
@@ -69,7 +69,7 @@ function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
+      <View style={styles.viewcontainer}>
         <LogoComponent />
         <PickerComponent1 selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} />
         <PickerComponent2 rating={rating} setRating={setRating} />
@@ -77,8 +77,8 @@ function App() {
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Submit</Text>
         </TouchableOpacity>
-        <ContentScrollViewComponent />
       </View>
+      <ContentScrollViewComponent />
     </SafeAreaView>
   );
 }
@@ -170,7 +170,7 @@ const TextInputComponent: FC<TextInputComponentProps> = ({ userInput, setUserInp
 type ContentType = {
   comment: string;
   course: string;
-  // rating: string;
+  rating: string;
   timestamp: {
     nanoseconds: number;
     seconds: number;
@@ -182,7 +182,7 @@ const ContentBox = (props: ContentType) => {
   return (
     <View style={styles_scrollview.contentBox}>
       <Text style={styles_scrollview.course}>Course: {props.course}</Text>
-      {/* <Text style={styles_scrollview.rating}>rating: {props.rating}</Text> */}
+      <Text style={styles_scrollview.rating}>rating: {props.rating}</Text>
       <Text style={styles_scrollview.body}>{props.comment}</Text>
       <Text style={styles_scrollview.timestamp}>{props.timestamp.toDate().toString()}</Text>
     </View>
@@ -235,7 +235,7 @@ const ContentScrollViewComponent = () => {
       {contentData.map((data, index) => (
         <ContentBox
           key={index} course={data.course} comment={data.comment}
-          timestamp={data.timestamp}></ContentBox>
+          rating={data.rating} timestamp={data.timestamp}></ContentBox>
       ))}
 
     </ScrollView>
@@ -246,6 +246,10 @@ const ContentScrollViewComponent = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    flex: 1
+  },
+  viewcontainer: {
+    flex: 0.8
   },
   header: {
     flexDirection: 'row',
@@ -295,7 +299,8 @@ const styles_scrollview = StyleSheet.create({
   scrollView: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    marginTop: 25
+    marginTop: 25,
+    flex: 0.2
   },
   contentBox: {
     backgroundColor: '#ffffff',
